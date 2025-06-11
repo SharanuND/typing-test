@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Typing Speed Test</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .correct {
+            color: #10B981;
+        }
+        .incorrect {
+            color: #EF4444;
+        }
+        .default {
+            color: #374151;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-b from-gray-50 to-gray-100 min-h-screen flex flex-col">
+    <div class="container mx-auto py-12 px-4 flex-grow">
+        <h1 class="text-4xl font-bold text-center text-gray-800 mb-8">
+            Typing Speed Test
+        </h1>
+        <!-- <p class="text-center text-gray-600 mb-12 max-w-2xl mx-auto"> -->
+            <!-- Test your typing speed and accuracy with our interactive typing test.  -->
+            <!-- Type the text below as quickly and accurately as possible. -->
+        <!-- </p> -->
+        
+        <div class="max-w-4xl mx-auto">
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <div class="mb-6 flex justify-between items-center">
+                    <div class="text-2xl font-bold text-gray-800">Typing Test</div>
+                    <div class="flex gap-4">
+                        <div class="text-lg">
+                            <span class="font-semibold">WPM:</span> <span id="wpm">0</span>
+                        </div>
+                        <div class="text-lg">
+                            <span class="font-semibold">Accuracy:</span> <span id="accuracy">100</span>%
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-6 p-4 bg-gray-50 rounded-lg">
+                    <p id="text-display" class="text-gray-700 leading-relaxed"></p>
+                </div>
+
+                <textarea
+                    id="typing-input"
+                    class="w-full h-32 p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                    placeholder="Start typing here..."
+                ></textarea>
+
+                <button
+                    id="reset-button"
+                    class="mt-4 px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors hidden"
+                    onclick="resetTest()"
+                >
+                    Try Again
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <footer class="py-4 text-center text-gray-600 border-t border-gray-200">
+        <p>2025 ©SharanuDibbadamani . All rights reserved.</p>
+    </footer>
+
+    <script>
+        const sampleText = "The quick brown fox jumps over the lazy dog. Programming is the art of telling another human what one wants the computer to do. The best way to predict the future is to invent it.";
+        let startTime = null;
+        let timer = null;
+
+        const textDisplay = document.getElementById('text-display');
+        const typingInput = document.getElementById('typing-input');
+        const wpmDisplay = document.getElementById('wpm');
+        const accuracyDisplay = document.getElementById('accuracy');
+        const resetButton = document.getElementById('reset-button');
+
+        // Initialize the text display
+        textDisplay.innerHTML = sampleText.split('').map(char => 
+            `<span class="default">${char}</span>`
+        ).join('');
+
+        function calculateWPM(timeInSeconds) {
+            const words = typingInput.value.trim().split(/\s+/).length;
+            const minutes = timeInSeconds / 60;
+            return Math.round(words / minutes);
+        }
+
+        function calculateAccuracy() {
+            let correct = 0;
+            const input = typingInput.value;
+            for (let i = 0; i < input.length; i++) {
+                if (input[i] === sampleText[i]) {
+                    correct++;
+                }
+            }
+            return Math.round((correct / input.length) * 100) || 100;
+        }
+
+        function updateDisplay() {
+            const input = typingInput.value;
+            const spans = textDisplay.getElementsByTagName('span');
+            
+            for (let i = 0; i < spans.length; i++) {
+                if (i < input.length) {
+                    spans[i].className = input[i] === sampleText[i] ? 'correct' : 'incorrect';
+                } else {
+                    spans[i].className = 'default';
+                }
+            }
+
+            if (startTime) {
+                const timeElapsed = (Date.now() - startTime) / 1000;
+                wpmDisplay.textContent = calculateWPM(timeElapsed);
+                accuracyDisplay.textContent = calculateAccuracy();
+            }
+        }
+
+        function resetTest() {
+            typingInput.value = '';
+            startTime = null;
+            clearInterval(timer);
+            wpmDisplay.textContent = '0';
+            accuracyDisplay.textContent = '100';
+            resetButton.classList.add('hidden');
+            updateDisplay();
+        }
+
+        typingInput.addEventListener('input', () => {
+            if (!startTime) {
+                startTime = Date.now();
+                timer = setInterval(updateDisplay, 1000);
+            }
+            
+            updateDisplay();
+
+            if (typingInput.value.length === sampleText.length) {
+                clearInterval(timer);
+                resetButton.classList.remove('hidden');
+            }
+        });
+    </script>
+</body>
+</html> 
